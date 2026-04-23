@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v3
 
       # -----------------------------
-      # Setup Python (for FastAPI app)
+      # Setup Python
       # -----------------------------
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -30,6 +30,18 @@ jobs:
           pip install -r requirements.txt
 
       # -----------------------------
+      # Debug (optional but useful)
+      # -----------------------------
+      - name: Check SONAR_TOKEN exists
+        run: |
+          if [ -z "${{ secrets.SONAR_TOKEN }}" ]; then
+            echo "❌ SONAR_TOKEN is missing"
+            exit 1
+          else
+            echo "✅ SONAR_TOKEN is set"
+          fi
+
+      # -----------------------------
       # SonarCloud Scan
       # -----------------------------
       - name: SonarCloud Scan
@@ -37,12 +49,13 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
+          projectBaseDir: notification-service
           args: >
             -Dsonar.projectKey=KaviduMalshan99_Cloud-Based-Event-Management-System
             -Dsonar.organization=kavidumalshan99
 
       # -----------------------------
-      # Docker Login (Azure Container Registry)
+      # Docker Login
       # -----------------------------
       - name: Login to ACR
         run: echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ secrets.ACR_LOGIN_SERVER }} -u ${{ secrets.ACR_USERNAME }} --password-stdin
