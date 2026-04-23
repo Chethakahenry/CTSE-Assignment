@@ -13,11 +13,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # -----------------------------
+      # Checkout Code
+      # -----------------------------
       - name: Checkout repository
         uses: actions/checkout@v3
 
       # -----------------------------
-      # Setup Python
+      # Setup Python (FastAPI)
       # -----------------------------
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -25,24 +28,12 @@ jobs:
           python-version: '3.10'
 
       - name: Install dependencies
+        working-directory: notification-service
         run: |
-          cd notification-service
           pip install -r requirements.txt
 
       # -----------------------------
-      # Debug (optional but useful)
-      # -----------------------------
-      - name: Check SONAR_TOKEN exists
-        run: |
-          if [ -z "${{ secrets.SONAR_TOKEN }}" ]; then
-            echo "❌ SONAR_TOKEN is missing"
-            exit 1
-          else
-            echo "✅ SONAR_TOKEN is set"
-          fi
-
-      # -----------------------------
-      # SonarCloud Scan
+      # SonarCloud Scan (FIXED)
       # -----------------------------
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
@@ -55,7 +46,7 @@ jobs:
             -Dsonar.organization=kavidumalshan99
 
       # -----------------------------
-      # Docker Login
+      # Docker Login (ACR)
       # -----------------------------
       - name: Login to ACR
         run: echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ secrets.ACR_LOGIN_SERVER }} -u ${{ secrets.ACR_USERNAME }} --password-stdin
